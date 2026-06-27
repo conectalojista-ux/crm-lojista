@@ -588,19 +588,23 @@ $('btnRegister').onclick=async()=>{
 
 $('btnLogout').onclick=async()=>{await sb.auth.signOut();};
 
-// AUTH DESATIVADO TEMPORARIAMENTE — reativar quando pronto para produção
-user = {id: '00000000-0000-0000-0000-000000000001', email: 'teste@crm.local'};
-$('authScreen').style.display='none';
-$('appShell').style.display='';
-$('topUser').textContent=user.email;
-$('appShell').style.display='block';
-loadAll();
-
-sb.auth.onAuthStateChange(async(event,session)=>{});
+sb.auth.onAuthStateChange(async(event,session)=>{
+  if(session?.user){
+    user=session.user;
+    $('authScreen').style.display='none';
+    $('appShell').style.display='block';
+    $('topUser').textContent=user.email;
+    await loadAll();
+  } else {
+    user=null;
+    $('authScreen').style.display='';
+    $('appShell').style.display='none';
+  }
+});
 
 /* ═══ DATA LOADING ═══ */
 async function loadAll(){
-  try{ await Promise.all([loadProfile(),loadCategories(),loadProducts(),loadSales(),loadStock()]); }catch(e){}
+  await Promise.all([loadProfile(),loadCategories(),loadProducts(),loadSales(),loadStock()]);
   applyBranding();
   renderAll();
 }
